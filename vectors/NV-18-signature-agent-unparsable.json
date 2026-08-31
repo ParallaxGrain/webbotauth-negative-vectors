@@ -1,0 +1,61 @@
+{
+  "id": "NV-18",
+  "title": "Signature-Agent is not a readable structured field",
+  "group": "signature-agent",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "invalid",
+    "reason": "signature-agent-unparsable"
+  },
+  "enforcement": "mechanical",
+  "basis": {
+    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "section": "5.2.1",
+    "requirement": "Signature-Agent is a Dictionary Structured Header as defined in Section 3.2 of STRUCTURED-HEADERS."
+  },
+  "note": "The member value opens a quoted string and never closes it, so the header is not a structured field and no member can be read. Deliberately not the unquoted-value case: an unquoted value is recoverable and at least one verifier accepts it while recording a deviation, which makes it a tolerated departure rather than a rejection.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test",
+      "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:JE1yD+mpEKRsD1jC6gpbZXXFMoupdDH6EEwU1+QKgwDGXftEABdV3XbSANQzNQxU7UtgavuSgunABEfoHBxtDQ==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "expectedValues": null,
+    "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": null,
+    "baseDiffers": true
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}

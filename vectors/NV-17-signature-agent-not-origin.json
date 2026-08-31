@@ -1,0 +1,59 @@
+{
+  "id": "NV-17",
+  "title": "Directory-type Signature-Agent carries a path",
+  "group": "signature-agent",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "unverified",
+    "reason": "signature-agent-not-origin"
+  },
+  "enforcement": "verifier-must",
+  "basis": {
+    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "section": "5.5",
+    "requirement": "The member value MUST be the ASCII serialization of an origin as defined in Section 6.2 of ORIGIN, and a verifier MUST ignore a member carrying anything else (an empty path / MAY be accepted though).",
+    "note": "Ignoring is not rejecting. With the only member ignored there is no discovery mechanism left, so the outcome is unverified — the same reading the draft applies to an unsupported type parameter."
+  },
+  "note": "For the directory type the value is an origin. The path is fixed by the well-known registration. A value carrying its own path is either a jwks_uri sent under the wrong type, or an attempt to point discovery outside the well-known reservation. The exemption for a bare \"/\" does not apply here.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test/keys\"",
+      "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:vIPkgnOG178b20lu4tMkGgyEPpsAOOFODichdLIrrNt0Y/KMQtoLxWrODh4srzzLySJtihrYgoP4bLWV+jweDw==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test/keys\""
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test/keys\""
+    },
+    "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test/keys\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test/keys\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "baseDiffers": false
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": null,
+  "directoryNote": "None supplied: the member the address would come from is one the verifier is told to ignore, so no directory address can be derived from this request."
+}

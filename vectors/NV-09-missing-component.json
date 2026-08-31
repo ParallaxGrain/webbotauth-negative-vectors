@@ -1,0 +1,66 @@
+{
+  "id": "NV-09",
+  "title": "Signature covers a component the request does not carry",
+  "group": "signature",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "invalid",
+    "reason": "missing-component"
+  },
+  "enforcement": "mechanical",
+  "basis": {
+    "document": "RFC 9421",
+    "section": "2.5",
+    "requirement": "If covered components reference a component identifier that cannot be resolved to a component value in the message, the implementation MUST produce an error and not create a signature base. Such situations include ... The component name identifies a field that is not present in the message or whose value is malformed."
+  },
+  "note": "The signature covers content-digest and the request carries no such header, so the base cannot be built at all. Distinct from a digest that is present and wrong (NV-08): here there is nothing to compare.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+      "Signature-Input": "sig1=(\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:6xuRq2Nf1ZbzTCosEy2cFaQ6Nx/NzDjCzlbEN4uqnEhkp3iNLr8xrTFc+vdPWtqTq+FAVHzPoGPDbL7m6y9eCw==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"content-digest\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"content-digest\"": "sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "signedBase": "\"@authority\": example.com\n\"content-digest\": sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": null,
+    "baseDiffers": true
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "id": "NV-03",
+  "title": "Signature-Input omits a required parameter",
+  "group": "signature",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "invalid",
+    "reason": "missing-fields"
+  },
+  "enforcement": "discretionary",
+  "basis": {
+    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "section": "5.2",
+    "requirement": "Agents MUST include the following @signature-params as defined in Section 2.3 of HTTP-MESSAGE-SIGNATURES",
+    "requirementList": [
+      "created",
+      "expires",
+      "keyid",
+      "tag"
+    ],
+    "note": "Named as a definition list under the sentence. A signer requirement. The verifier side is unstated."
+  },
+  "note": "expires is absent, so the signature has no stated lifetime and nothing bounds how long an observed request stays replayable.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+      "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+      "Signature": "sig1=:vwMiAiACovfQ9Cnj5b145eU183Ce2YGO02p+H5n/86NQiOeaZPLmiA1Cry2TUqmj+uAqzw5pHvLu33Q4dRS1CQ==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+    "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+    "baseDiffers": false
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}

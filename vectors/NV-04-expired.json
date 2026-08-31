@@ -1,0 +1,65 @@
+{
+  "id": "NV-04",
+  "title": "Signature expired before the request arrived",
+  "group": "signature",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "invalid",
+    "reason": "expired"
+  },
+  "enforcement": "discretionary",
+  "basis": {
+    "document": "RFC 9421",
+    "section": "3.2.1",
+    "requirement": "Rejecting signatures past the expiration time in the expires timestamp. Note that the expiration time is a hint from the signer and that a verifier can always reject a signature ahead of its expiration time.",
+    "note": "Listed among \"additional requirements an application might define\". Enforcing expiry is a choice, not a baseline rule, so the outcome below is what a verifier that enforces it produces."
+  },
+  "note": "Correct in every other way. The clock has moved past the stated expiry. The stated now is what makes this reproducible.",
+  "now": 1735696800,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+      "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:PGCXcZbx5FaCr8JzBK0Rcs/h+eV0s+o6JhsQpiWfoBZnvREvjbmZexFna9jGiNfvbXfZ4Q/nO7wDc9RJzF8SDw==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+    "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+    "baseDiffers": false
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}

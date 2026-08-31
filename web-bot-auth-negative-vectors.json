@@ -1,0 +1,1234 @@
+{
+  "schema": "web-bot-auth-negative-vectors-v1",
+  "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+  "issue": "https://github.com/thibmeu/http-message-signatures-directory/issues/11",
+  "numberOfTests": 17,
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "header": [
+    "Requests that must not verify, and the reason each failure should carry.",
+    "expected.outcome is the draft's own (Appendix C.1, Verifier Outcomes) and is normative.",
+    "expected.reason is a finer vocabulary this set proposes; notes explains each name.",
+    "A verifier that wants none of the vocabulary can check expected.outcome alone and still",
+    "have a complete conformance run against the text as it stands.",
+    "enforcement says how binding the rejection is: mechanical (verification cannot succeed),",
+    "verifier-must (the document tells the verifier what to do), or discretionary (the obligation",
+    "is on the signer, or the document says MAY; the outcome is what a verifier that enforces gives).",
+    "These vectors state what a verifier CONCLUDES. What it discloses on the wire is local policy",
+    "and this set takes no position on it."
+  ],
+  "notes": {
+    "target-not-covered": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The signature covers no request target, so it is valid against any endpoint and replayable elsewhere as your identity. Cover \"@authority\" or \"@target-uri\". The draft requires one of them."
+    },
+    "missing-fields": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "Signature-Input is missing required parameters. Include created, expires, keyid and tag."
+    },
+    "expired": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The signature expired before the request arrived. Set expires with more headroom. A minute is usually enough."
+    },
+    "clock-ahead": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "Your server's clock is ahead: the signature is dated in the future. Enable time synchronisation (NTP)."
+    },
+    "bad-signature": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The signature does not verify against the published key. The base is a likelier cause than the key: covering \"signature-agent\" puts the whole field into it, covering \"signature-agent\";key=\"sig1\" puts that member value alone. Rebuild the base, then check the key is the one your directory publishes."
+    },
+    "canonicalization-mismatch": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The signature is sound, the base it was built over is not the one rebuilt here: a value formatted differently, identifiers written without quotes, a whole field where the covered member belongs, or a trailing newline."
+    },
+    "content-digest-mismatch": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The Content-Digest you signed does not match the body that arrived. Recompute the digest over the exact bytes you send."
+    },
+    "missing-component": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The signature covers a component that this request does not carry, so the signature base cannot be rebuilt. Send every component you sign."
+    },
+    "signature-input-unreadable": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "Signature-Input could not be parsed. It must be a dictionary member such as sig1=(\"@authority\");created=1;expires=2;keyid=\"…\";tag=\"web-bot-auth\"."
+    },
+    "signature-value-unreadable": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The Signature header has no member matching the Signature-Input label, or its value is not base64 between colons."
+    },
+    "signature-agent-absent": {
+      "outcome": "unverified",
+      "group": "signature-agent",
+      "fix": "No Signature-Agent header. -02 requires one on a signed request, and without it nothing says where your public key is published."
+    },
+    "signature-agent-ambiguous-member": {
+      "outcome": "invalid",
+      "group": "signature-agent",
+      "fix": "Signature-Agent carries several members and none can be matched to this signature. Add a key parameter to the covered signature-agent component, or use one member named after the signature label."
+    },
+    "signature-agent-member-missing": {
+      "outcome": "invalid",
+      "group": "signature-agent",
+      "fix": "The signature covers a Signature-Agent member that the header does not contain. The key parameter must name a member that is actually sent."
+    },
+    "signature-agent-not-https": {
+      "outcome": "invalid",
+      "group": "signature-agent",
+      "fix": "Signature-Agent must point at an https address. Key directories are not read over plain http."
+    },
+    "signature-agent-not-origin": {
+      "outcome": "unverified",
+      "group": "signature-agent",
+      "fix": "For the directory type the value must be a bare origin such as \"https://example.com\", with no path, query or fragment. Use type=jwks_uri to point at a file."
+    },
+    "signature-agent-unparsable": {
+      "outcome": "invalid",
+      "group": "signature-agent",
+      "fix": "Signature-Agent is not readable. Send a dictionary member such as sig1=\"https://example.com\"."
+    },
+    "duplicate-component": {
+      "outcome": "invalid",
+      "group": "signature",
+      "fix": "The same component identifier is covered twice. RFC 9421 requires a signature base to be built with each identifier once, so the base cannot be constructed and the signature cannot be checked. Remove the repeat."
+    }
+  },
+  "omitted": {
+    "bad-tag": "No vector, but the reason is a contradiction worth reporting rather than a gap. Draft Section 5.2 makes tag=\"web-bot-auth\" a signer MUST. RFC 9421 Section 3.2.1 says an application \"MUST enforce\" the additional requirements it defines and that \"signature verification MUST fail if the signature does not conform\". Draft Section 5.4 then says the Origin MAY discard signatures whose tag is not web-bot-auth. Those give two different answers to one request: a verifier enforcing the RFC 9421 rule reports invalid, and a verifier exercising the MAY treats the request as unsigned, which is not one of the three outcomes at all. Both are conformant, so no vector can state an expected result until the group settles which applies.",
+    "signature-agent-mixed-forms": "Accepting the legacy bare-string form is a MAY (Section 5.2.1). A verifier that accepts it reports mixed forms. One that does not reports an unparsable header. Two conformant verifiers give different reasons, so the vector would not isolate one."
+  },
+  "testGroups": [
+    {
+      "group": "signature",
+      "title": "The signature itself",
+      "tests": [
+        {
+          "id": "NV-01",
+          "title": "Signature covers no request target",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "target-not-covered"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2",
+            "requirement": "Agents MUST include at least one of the following components:",
+            "requirementList": [
+              "@authority",
+              "@target-uri"
+            ],
+            "note": "Section 5.2 states the sentence and then names the two components as a definition list under it. A signer requirement: the draft does not say what a verifier does when it is broken, which is why this is discretionary and not mechanical.",
+            "enforcedBy": {
+              "implementation": "cloudflare/web-bot-auth",
+              "commit": "9db2b21d2c12",
+              "date": "2026-07-21",
+              "message": "Enforce covered components in web-bot-auth verify() (#114)"
+            }
+          },
+          "note": "The signature verifies over its own base and covers nothing naming the destination, so it is valid against every endpoint. Anyone who observes one request can present it elsewhere as this agent, without holding the key.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:OfqFF7JEZnSAkthXM22HF3Ghlrslj4CHN1ZO9HMaOlf4rCCCSHcaQT82AtaWrXV0avoXjS4A7LJUMkdamFXLCg==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-03",
+          "title": "Signature-Input omits a required parameter",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "missing-fields"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2",
+            "requirement": "Agents MUST include the following @signature-params as defined in Section 2.3 of HTTP-MESSAGE-SIGNATURES",
+            "requirementList": [
+              "created",
+              "expires",
+              "keyid",
+              "tag"
+            ],
+            "note": "Named as a definition list under the sentence. A signer requirement. The verifier side is unstated."
+          },
+          "note": "expires is absent, so the signature has no stated lifetime and nothing bounds how long an observed request stays replayable.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+              "Signature": "sig1=:vwMiAiACovfQ9Cnj5b145eU183Ce2YGO02p+H5n/86NQiOeaZPLmiA1Cry2TUqmj+uAqzw5pHvLu33Q4dRS1CQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-04",
+          "title": "Signature expired before the request arrived",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "expired"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "3.2.1",
+            "requirement": "Rejecting signatures past the expiration time in the expires timestamp. Note that the expiration time is a hint from the signer and that a verifier can always reject a signature ahead of its expiration time.",
+            "note": "Listed among \"additional requirements an application might define\". Enforcing expiry is a choice, not a baseline rule, so the outcome below is what a verifier that enforces it produces."
+          },
+          "note": "Correct in every other way. The clock has moved past the stated expiry. The stated now is what makes this reproducible.",
+          "now": 1735696800,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:PGCXcZbx5FaCr8JzBK0Rcs/h+eV0s+o6JhsQpiWfoBZnvREvjbmZexFna9jGiNfvbXfZ4Q/nO7wDc9RJzF8SDw==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=1735693200;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-05",
+          "title": "Signature is dated in the signer's future",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "clock-ahead"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "Appendix B.1",
+            "requirement": "A verifier MUST reject a directory response signature whose created is in the future, as it would a certificate that is not yet valid.",
+            "note": "The asymmetry is the point. The draft makes rejecting a future created a MUST for a DIRECTORY RESPONSE signature and says nothing about a REQUEST signature, where the same reasoning applies: a future-dated signature outlives every honest one. RFC 9421 Section 3.2.1 leaves the request side to the application (\"Enforcing a maximum signature age from the time of the created timestamp\"), so this vector is discretionary on the request path only because the draft has not carried its own rule across."
+          },
+          "note": "created is an hour ahead of the stated now. Distinct from expiry and from forgery: the signer's clock is wrong, which the operator can fix, and a verifier that reports it as an invalid signature sends them to the wrong place.",
+          "now": 1735686000,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:JE1yD+mpEKRsD1jC6gpbZXXFMoupdDH6EEwU1+QKgwDGXftEABdV3XbSANQzNQxU7UtgavuSgunABEfoHBxtDQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-06",
+          "title": "Signature does not verify against the published key",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "bad-signature"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.4",
+            "requirement": "Upon receiving an HTTP request, the origin has to verify the signature. The algorithm is provided in Section 3.2 of HTTP-MESSAGE-SIGNATURES."
+          },
+          "note": "A real Ed25519 signature made with the published key, over a base naming a different authority. What a replayed or altered request looks like on the wire, and the one failure every verifier already detects.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:tlN1YC7fkMH5W7SBtB/uwrm65jP8d1la9pAPxphRsBrR+dAYAEPF+BVvJpX8oIf7DJZrsAaq65Iil6YdKCuGDg==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "other.example",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": other.example\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-07",
+          "title": "Signer wrote an empty @path where the rule requires a single slash",
+          "group": "signature",
+          "class": "request",
+          "provenance": "observed-fault",
+          "observed": {
+            "operator": "DuckDuckGo",
+            "agent": "DuckDuckBot",
+            "firstNamed": "2026-08-27",
+            "note": "The FAULT is observed, the request below is not. On the wire this agent covers (\"@method\" \"@authority\" \"@path\" \"signature-agent\") with its own key and a bare signature-agent component. The vector reproduces the empty-@path mismatch with the B.1.4 key and the dictionary form so it isolates that one cause. 2026-08-27 is when the reason was first named — the collector itself only began on 2026-08-25, so earlier occurrences would have been recorded as an invalid signature."
+          },
+          "expected": {
+            "outcome": "invalid",
+            "reason": "canonicalization-mismatch"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "2.2.6",
+            "requirement": "an empty path string is normalized as a single slash (/) character"
+          },
+          "note": "The signer built its base with an empty @path. A verifier following the rule rebuilds it as \"/\". The bases differ by one byte, so the signature cannot match — yet nothing about the signature or the key is wrong, and calling it a bad signature sends the operator to rotate a good key.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:gVyV1O4BnincHcl/dIHWUaGagmEldaC7JN4KtkCsRtbOGwxrRJTdm0HHyKBcOYW3uA4R7FjcdaERQBbDJSzRAg==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"@path\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"@path\"": "",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"@path\"": "/",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"@path\": \n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"@path\": /\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-08",
+          "title": "Covered Content-Digest does not match the body sent",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "content-digest-mismatch"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2",
+            "requirement": "No component covers the body. An Agent that needs one MUST send and cover Content-Digest.",
+            "note": "The draft requires the signer to cover it and does not say the verifier must compare it against the body. A verifier that skips the comparison makes the coverage decorative, but stays within the text."
+          },
+          "note": "The signature covers Content-Digest and the field value is exactly what was signed. It is simply not the digest of the body that arrived.",
+          "now": 1735689660,
+          "request": {
+            "method": "POST",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Content-Digest": "sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:",
+              "Signature-Input": "sig1=(\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:6xuRq2Nf1ZbzTCosEy2cFaQ6Nx/NzDjCzlbEN4uqnEhkp3iNLr8xrTFc+vdPWtqTq+FAVHzPoGPDbL7m6y9eCw==:"
+            },
+            "body": "{\"hello\":\"world\"}"
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"content-digest\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"content-digest\"": "sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"content-digest\"": "sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"content-digest\": sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"content-digest\": sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-09",
+          "title": "Signature covers a component the request does not carry",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "missing-component"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "2.5",
+            "requirement": "If covered components reference a component identifier that cannot be resolved to a component value in the message, the implementation MUST produce an error and not create a signature base. Such situations include ... The component name identifies a field that is not present in the message or whose value is malformed."
+          },
+          "note": "The signature covers content-digest and the request carries no such header, so the base cannot be built at all. Distinct from a digest that is present and wrong (NV-08): here there is nothing to compare.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:6xuRq2Nf1ZbzTCosEy2cFaQ6Nx/NzDjCzlbEN4uqnEhkp3iNLr8xrTFc+vdPWtqTq+FAVHzPoGPDbL7m6y9eCw==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"content-digest\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"content-digest\"": "sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"content-digest\": sha-256=:47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=:\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"content-digest\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": null,
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-10",
+          "title": "Signature-Input is not a readable structured field",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "signature-input-unreadable"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "4.1",
+            "requirement": "The Signature-Input field is a Dictionary Structured Field (defined in Section 3.2 of [STRUCTURED-FIELDS]) containing the metadata for one or more message signatures generated from components within the HTTP message."
+          },
+          "note": "The component list is left unclosed, so nothing can be read: not what the signature covers, not which key it names.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\";created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:JE1yD+mpEKRsD1jC6gpbZXXFMoupdDH6EEwU1+QKgwDGXftEABdV3XbSANQzNQxU7UtgavuSgunABEfoHBxtDQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": null,
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": null,
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-11",
+          "title": "Signature has no member matching the Signature-Input label",
+          "group": "signature",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "signature-value-unreadable"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "4",
+            "requirement": "An HTTP message signature MUST use both the Signature-Input field and the Signature field, and each field MUST contain the same labels. The presence of a label in one field but not the other is an error."
+          },
+          "note": "Signature-Input announces label sig1 and the Signature header carries only sig9. The signature bytes are genuine. Nothing pairs them to the parameters, so no base can be selected.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig9=:JE1yD+mpEKRsD1jC6gpbZXXFMoupdDH6EEwU1+QKgwDGXftEABdV3XbSANQzNQxU7UtgavuSgunABEfoHBxtDQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": null,
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": null,
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-19",
+          "title": "The same component identifier is covered twice",
+          "group": "signature",
+          "class": "request",
+          "provenance": "observed-fault",
+          "observed": {
+            "note": "The fault is observed in a verifier rather than on the wire. Writing this vector is what found it: the verifier behind this set built the base with the component twice and answered verified to a correctly signed request covering (\"@authority\" \"@authority\" \"signature-agent\"), measured against its production endpoint on 2026-08-30. Fixed the same day. The vector exists so the fix cannot quietly come undone."
+          },
+          "expected": {
+            "outcome": "invalid",
+            "reason": "duplicate-component"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "2.5",
+            "requirement": "If the component identifier (including its parameters) has already been added to the signature base, produce an error.",
+            "note": "The identifier includes its parameters, so two signature-agent members under different key parameters remain legal. Only an exact repeat is an error."
+          },
+          "note": "A signature that is otherwise correct, over a base that RFC 9421 says must never be built. Nothing about the key or the bytes is wrong, and a verifier that builds the base anyway will verify it.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:pI8eHSuMEPbVLPtEQK368TDMssBWtvsVc6NCuQyp1T6oMnk/Pkpxc4yJhm/kzHLNwqelACukRNMMgh0/FqtFBA==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": null,
+            "signedBase": "\"@authority\": example.com\n\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": null,
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        }
+      ]
+    },
+    {
+      "group": "signature-agent",
+      "title": "The Signature-Agent header",
+      "tests": [
+        {
+          "id": "NV-12",
+          "title": "Signed request carries no Signature-Agent header",
+          "group": "signature-agent",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "unverified",
+            "reason": "signature-agent-absent"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2.1",
+            "requirement": "A signed request MUST carry the Signature-Agent header, as described in Section 5.2.5.",
+            "requirementNote": "The kramdown source writes the cross-reference as a label, {{sending-request}}; it is expanded here to the number the published document prints, as every other citation in this set is.",
+            "note": "A signer requirement. The outcome is unverified rather than invalid because no check failed: discovery never started."
+          },
+          "note": "A correct signature with nowhere to look up the key.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Input": "sig1=(\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:emtWW7ctXrq/Jxc/GrRNbHSTol22e5tabmwNFjtFnpl62D/XwZuJNpa4dUhOmI5Q3pYJNxMkA3bnLBUnm8xzBQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\""
+            ],
+            "paramsValue": "(\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com"
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com"
+            },
+            "signedBase": "\"@authority\": example.com\n\"@signature-params\": (\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"@signature-params\": (\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": null,
+          "directoryNote": "None supplied: the request names no address."
+        },
+        {
+          "id": "NV-13",
+          "title": "Several Signature-Agent members and none matches this signature",
+          "group": "signature-agent",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "signature-agent-ambiguous-member"
+          },
+          "enforcement": "verifier-must",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2.2",
+            "requirement": "Each signer MUST provide a Signature-Agent member for its label. A verifier MUST NOT attribute a signature to a member that signature does not cover.",
+            "note": "The MUST NOT binds attribution, not the outcome: a verifier is forbidden from picking one of the two members, and the text does not say which failing outcome follows. Reported here as invalid because the signer broke a stated MUST that the operator can fix. A verifier reporting unverified on the same request is not obviously wrong, and the question is worth settling — see COVERAGE.md."
+          },
+          "note": "Two members, a covered signature-agent component with no key parameter, and no member named after the signature label. Related to issue #128, where the draft's own E.2.1 vector keys its member agent2 under signature label sig2. Here the ambiguity is explicit so the reported reason can be checked whichever way #128 resolves.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "first=\"https://signature-agent.test\", second=\"https://other-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:+1vomCIkcZg+3SGgA/XX2FFlS13bVmSPQjBgCclNhatOKs08sckrIx723RIJ/gTAJPGvXfnP3O6W70q41C+BDg==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\"": "first=\"https://signature-agent.test\", second=\"https://other-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\"": "first=\"https://signature-agent.test\", second=\"https://other-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\": first=\"https://signature-agent.test\", second=\"https://other-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\": first=\"https://signature-agent.test\", second=\"https://other-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-14",
+          "title": "Signature covers a Signature-Agent member the header does not contain",
+          "group": "signature-agent",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "signature-agent-member-missing"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "RFC 9421",
+            "section": "2.5",
+            "requirement": "If covered components reference a component identifier that cannot be resolved to a component value in the message, the implementation MUST produce an error and not create a signature base.",
+            "note": "The draft adds the reason the member matters: \"Its member keyed to the signature label MUST be signed as a component\" (Section 5.2.1). Without it the address the verifier fetches keys from is unprotected."
+          },
+          "note": "The signature covers the member keyed sig1 and the header carries only other.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "other=\"https://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:JE1yD+mpEKRsD1jC6gpbZXXFMoupdDH6EEwU1+QKgwDGXftEABdV3XbSANQzNQxU7UtgavuSgunABEfoHBxtDQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": null,
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": null,
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-16",
+          "title": "Signature-Agent names an http address",
+          "group": "signature-agent",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "signature-agent-not-https"
+          },
+          "enforcement": "discretionary",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2.1",
+            "requirement": "Its member values MUST be String Items that contain a URI, whose scheme MUST be https.",
+            "note": "A signer requirement. The adjacent sentence — \"If dictionary values are not valid URI-references, the entire header field MAY be ignored\" — does not apply: an http URL is a valid URI-reference."
+          },
+          "note": "Key discovery over plain http would let anyone on the path substitute the key set, removing the property the signature exists to provide.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"http://signature-agent.test\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:Mwv2BtF7JrgdsyTdpxNJzjc7BMWu0IvufR7FjzCJaYx1VZFDvSFvqnCyHQOBpH5HUmGfMmZHwmp2LAKsFt6cCA==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"http://signature-agent.test\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"http://signature-agent.test\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"http://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"http://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "http://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        },
+        {
+          "id": "NV-17",
+          "title": "Directory-type Signature-Agent carries a path",
+          "group": "signature-agent",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "unverified",
+            "reason": "signature-agent-not-origin"
+          },
+          "enforcement": "verifier-must",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.5",
+            "requirement": "The member value MUST be the ASCII serialization of an origin as defined in Section 6.2 of ORIGIN, and a verifier MUST ignore a member carrying anything else (an empty path / MAY be accepted though).",
+            "note": "Ignoring is not rejecting. With the only member ignored there is no discovery mechanism left, so the outcome is unverified — the same reading the draft applies to an unsupported type parameter."
+          },
+          "note": "For the directory type the value is an origin. The path is fixed by the well-known registration. A value carrying its own path is either a jwks_uri sent under the wrong type, or an attempt to point discovery outside the well-known reservation. The exemption for a bare \"/\" does not apply here.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test/keys\"",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:vIPkgnOG178b20lu4tMkGgyEPpsAOOFODichdLIrrNt0Y/KMQtoLxWrODh4srzzLySJtihrYgoP4bLWV+jweDw==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test/keys\""
+            },
+            "expectedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test/keys\""
+            },
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test/keys\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test/keys\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "baseDiffers": false
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": null,
+          "directoryNote": "None supplied: the member the address would come from is one the verifier is told to ignore, so no directory address can be derived from this request."
+        },
+        {
+          "id": "NV-18",
+          "title": "Signature-Agent is not a readable structured field",
+          "group": "signature-agent",
+          "class": "request",
+          "provenance": "constructed",
+          "expected": {
+            "outcome": "invalid",
+            "reason": "signature-agent-unparsable"
+          },
+          "enforcement": "mechanical",
+          "basis": {
+            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "section": "5.2.1",
+            "requirement": "Signature-Agent is a Dictionary Structured Header as defined in Section 3.2 of STRUCTURED-HEADERS."
+          },
+          "note": "The member value opens a quoted string and never closes it, so the header is not a structured field and no member can be read. Deliberately not the unquoted-value case: an unquoted value is recoverable and at least one verifier accepts it while recording a deviation, which makes it a tolerated departure rather than a rejection.",
+          "now": 1735689660,
+          "request": {
+            "method": "GET",
+            "url": "https://example.com/",
+            "headers": {
+              "Signature-Agent": "sig1=\"https://signature-agent.test",
+              "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+              "Signature": "sig1=:JE1yD+mpEKRsD1jC6gpbZXXFMoupdDH6EEwU1+QKgwDGXftEABdV3XbSANQzNQxU7UtgavuSgunABEfoHBxtDQ==:"
+            }
+          },
+          "signature": {
+            "label": "sig1",
+            "components": [
+              "\"@authority\"",
+              "\"signature-agent\";key=\"sig1\""
+            ],
+            "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "signedValues": {
+              "\"@authority\"": "example.com",
+              "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+            },
+            "expectedValues": null,
+            "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+            "expectedBase": null,
+            "baseDiffers": true
+          },
+          "key": {
+            "source": "RFC 9421 Appendix B.1.4",
+            "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+            "jwk": {
+              "kty": "OKP",
+              "crv": "Ed25519",
+              "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+            }
+          },
+          "directory": {
+            "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+            "status": 200,
+            "headers": {
+              "Content-Type": "application/http-message-signatures-directory+json"
+            },
+            "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+          }
+        }
+      ]
+    }
+  ]
+}

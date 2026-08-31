@@ -1,0 +1,65 @@
+{
+  "id": "NV-16",
+  "title": "Signature-Agent names an http address",
+  "group": "signature-agent",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "invalid",
+    "reason": "signature-agent-not-https"
+  },
+  "enforcement": "discretionary",
+  "basis": {
+    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "section": "5.2.1",
+    "requirement": "Its member values MUST be String Items that contain a URI, whose scheme MUST be https.",
+    "note": "A signer requirement. The adjacent sentence — \"If dictionary values are not valid URI-references, the entire header field MAY be ignored\" — does not apply: an http URL is a valid URI-reference."
+  },
+  "note": "Key discovery over plain http would let anyone on the path substitute the key set, removing the property the signature exists to provide.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"http://signature-agent.test\"",
+      "Signature-Input": "sig1=(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:Mwv2BtF7JrgdsyTdpxNJzjc7BMWu0IvufR7FjzCJaYx1VZFDvSFvqnCyHQOBpH5HUmGfMmZHwmp2LAKsFt6cCA==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"http://signature-agent.test\""
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"http://signature-agent.test\""
+    },
+    "signedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"http://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": "\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"http://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "baseDiffers": false
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "http://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}

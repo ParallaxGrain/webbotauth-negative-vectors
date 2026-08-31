@@ -1,0 +1,12 @@
+name: check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      # Regenerates every signature from the RFC 9421 B.1.4 key and fails on any drift,
+      # then checks the set is internally consistent. No dependencies, no network.
+      - run: npm run check

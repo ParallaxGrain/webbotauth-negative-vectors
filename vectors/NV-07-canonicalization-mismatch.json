@@ -1,0 +1,73 @@
+{
+  "id": "NV-07",
+  "title": "Signer wrote an empty @path where the rule requires a single slash",
+  "group": "signature",
+  "class": "request",
+  "provenance": "observed-fault",
+  "observed": {
+    "operator": "DuckDuckGo",
+    "agent": "DuckDuckBot",
+    "firstNamed": "2026-08-27",
+    "note": "The FAULT is observed, the request below is not. On the wire this agent covers (\"@method\" \"@authority\" \"@path\" \"signature-agent\") with its own key and a bare signature-agent component. The vector reproduces the empty-@path mismatch with the B.1.4 key and the dictionary form so it isolates that one cause. 2026-08-27 is when the reason was first named — the collector itself only began on 2026-08-25, so earlier occurrences would have been recorded as an invalid signature."
+  },
+  "expected": {
+    "outcome": "invalid",
+    "reason": "canonicalization-mismatch"
+  },
+  "enforcement": "mechanical",
+  "basis": {
+    "document": "RFC 9421",
+    "section": "2.2.6",
+    "requirement": "an empty path string is normalized as a single slash (/) character"
+  },
+  "note": "The signer built its base with an empty @path. A verifier following the rule rebuilds it as \"/\". The bases differ by one byte, so the signature cannot match — yet nothing about the signature or the key is wrong, and calling it a bad signature sends the operator to rotate a good key.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+      "Signature-Input": "sig1=(\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:gVyV1O4BnincHcl/dIHWUaGagmEldaC7JN4KtkCsRtbOGwxrRJTdm0HHyKBcOYW3uA4R7FjcdaERQBbDJSzRAg==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"@path\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"@path\"": "",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com",
+      "\"@path\"": "/",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "signedBase": "\"@authority\": example.com\n\"@path\": \n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": "\"@authority\": example.com\n\"@path\": /\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"@path\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "baseDiffers": true
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}

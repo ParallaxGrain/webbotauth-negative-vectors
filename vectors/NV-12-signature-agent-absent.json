@@ -1,0 +1,56 @@
+{
+  "id": "NV-12",
+  "title": "Signed request carries no Signature-Agent header",
+  "group": "signature-agent",
+  "class": "request",
+  "provenance": "constructed",
+  "expected": {
+    "outcome": "unverified",
+    "reason": "signature-agent-absent"
+  },
+  "enforcement": "discretionary",
+  "basis": {
+    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "section": "5.2.1",
+    "requirement": "A signed request MUST carry the Signature-Agent header, as described in Section 5.2.5.",
+    "requirementNote": "The kramdown source writes the cross-reference as a label, {{sending-request}}; it is expanded here to the number the published document prints, as every other citation in this set is.",
+    "note": "A signer requirement. The outcome is unverified rather than invalid because no check failed: discovery never started."
+  },
+  "note": "A correct signature with nowhere to look up the key.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Input": "sig1=(\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:emtWW7ctXrq/Jxc/GrRNbHSTol22e5tabmwNFjtFnpl62D/XwZuJNpa4dUhOmI5Q3pYJNxMkA3bnLBUnm8xzBQ==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\""
+    ],
+    "paramsValue": "(\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com"
+    },
+    "expectedValues": {
+      "\"@authority\"": "example.com"
+    },
+    "signedBase": "\"@authority\": example.com\n\"@signature-params\": (\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": "\"@authority\": example.com\n\"@signature-params\": (\"@authority\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "baseDiffers": false
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": null,
+  "directoryNote": "None supplied: the request names no address."
+}

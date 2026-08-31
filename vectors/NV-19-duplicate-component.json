@@ -1,0 +1,66 @@
+{
+  "id": "NV-19",
+  "title": "The same component identifier is covered twice",
+  "group": "signature",
+  "class": "request",
+  "provenance": "observed-fault",
+  "observed": {
+    "note": "The fault is observed in a verifier rather than on the wire. Writing this vector is what found it: the verifier behind this set built the base with the component twice and answered verified to a correctly signed request covering (\"@authority\" \"@authority\" \"signature-agent\"), measured against its production endpoint on 2026-08-30. Fixed the same day. The vector exists so the fix cannot quietly come undone."
+  },
+  "expected": {
+    "outcome": "invalid",
+    "reason": "duplicate-component"
+  },
+  "enforcement": "mechanical",
+  "basis": {
+    "document": "RFC 9421",
+    "section": "2.5",
+    "requirement": "If the component identifier (including its parameters) has already been added to the signature base, produce an error.",
+    "note": "The identifier includes its parameters, so two signature-agent members under different key parameters remain legal. Only an exact repeat is an error."
+  },
+  "note": "A signature that is otherwise correct, over a base that RFC 9421 says must never be built. Nothing about the key or the bytes is wrong, and a verifier that builds the base anyway will verify it.",
+  "now": 1735689660,
+  "request": {
+    "method": "GET",
+    "url": "https://example.com/",
+    "headers": {
+      "Signature-Agent": "sig1=\"https://signature-agent.test\"",
+      "Signature-Input": "sig1=(\"@authority\" \"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+      "Signature": "sig1=:pI8eHSuMEPbVLPtEQK368TDMssBWtvsVc6NCuQyp1T6oMnk/Pkpxc4yJhm/kzHLNwqelACukRNMMgh0/FqtFBA==:"
+    }
+  },
+  "signature": {
+    "label": "sig1",
+    "components": [
+      "\"@authority\"",
+      "\"@authority\"",
+      "\"signature-agent\";key=\"sig1\""
+    ],
+    "paramsValue": "(\"@authority\" \"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "signedValues": {
+      "\"@authority\"": "example.com",
+      "\"signature-agent\";key=\"sig1\"": "\"https://signature-agent.test\""
+    },
+    "expectedValues": null,
+    "signedBase": "\"@authority\": example.com\n\"@authority\": example.com\n\"signature-agent\";key=\"sig1\": \"https://signature-agent.test\"\n\"@signature-params\": (\"@authority\" \"@authority\" \"signature-agent\";key=\"sig1\");created=1735689600;keyid=\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\";alg=\"ed25519\";expires=4889289600;tag=\"web-bot-auth\"",
+    "expectedBase": null,
+    "baseDiffers": true
+  },
+  "key": {
+    "source": "RFC 9421 Appendix B.1.4",
+    "keyid": "poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U",
+    "jwk": {
+      "kty": "OKP",
+      "crv": "Ed25519",
+      "x": "JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs"
+    }
+  },
+  "directory": {
+    "url": "https://signature-agent.test/.well-known/http-message-signatures-directory",
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/http-message-signatures-directory+json"
+    },
+    "body": "{\"keys\":[{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"kid\":\"poqkLGiymh_W0uP6PZFw-dvez3QJT5SolqXBCW38r0U\",\"x\":\"JrQLj5P_89iXES9-vFgrIy29clF9CC_oPPsw3c5D0bs\",\"use\":\"sig\"}]}"
+  }
+}
