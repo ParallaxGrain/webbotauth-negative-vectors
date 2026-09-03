@@ -121,7 +121,7 @@ for (const v of VECTORS) {
 
 const combined = {
   schema: 'web-bot-auth-negative-vectors-v1',
-  document: 'draft-meunier-webbotauth-httpsig-protocol-02',
+  document: 'draft-ietf-webbotauth-httpsig-protocol-00',
   issue: 'https://github.com/thibmeu/http-message-signatures-directory/issues/11',
   numberOfTests: built.length,
   key: { source: 'RFC 9421 Appendix B.1.4', keyid: KEY_ID, jwk: PUBLIC_JWK },

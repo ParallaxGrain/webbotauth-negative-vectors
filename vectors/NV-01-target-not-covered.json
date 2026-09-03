@@ -10,7 +10,7 @@
   },
   "enforcement": "discretionary",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.2",
     "requirement": "Agents MUST include at least one of the following components:",
     "requirementList": [

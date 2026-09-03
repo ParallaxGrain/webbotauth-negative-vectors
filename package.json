@@ -1,7 +1,7 @@
 {
   "name": "webbotauth-negative-vectors",
   "version": "0.1.0",
-  "description": "Negative test vectors for draft-meunier-webbotauth-httpsig-protocol",
+  "description": "Negative test vectors for draft-ietf-webbotauth-httpsig-protocol",
   "license": "CC0-1.0",
   "type": "module",
   "scripts": {

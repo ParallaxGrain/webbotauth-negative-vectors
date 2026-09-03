@@ -10,7 +10,7 @@
   },
   "enforcement": "mechanical",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.2.1",
     "requirement": "Signature-Agent is a Dictionary Structured Header as defined in Section 3.2 of STRUCTURED-HEADERS."
   },

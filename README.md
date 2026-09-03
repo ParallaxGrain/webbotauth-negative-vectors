@@ -1,7 +1,7 @@
 # Negative test vectors for Web Bot Auth
 
 Requests that must not verify, for
-[draft-meunier-webbotauth-httpsig-protocol-02](https://datatracker.ietf.org/doc/draft-meunier-webbotauth-httpsig-protocol/02/).
+[draft-ietf-webbotauth-httpsig-protocol-00](https://datatracker.ietf.org/doc/draft-ietf-webbotauth-httpsig-protocol/00/).
 Offered against
 [#11 — Consider negative test vectors](https://github.com/thibmeu/http-message-signatures-directory/issues/11).
 
@@ -100,7 +100,7 @@ node verify.mjs --adapter ./adapters/YOURS.mjs   your verifier (copy example.mjs
 node check-citations.mjs                         every basis.requirement is verbatim (needs network)
 ```
 
-`check-citations.mjs` downloads the -02 tag and RFC 9421 and asserts each quoted requirement appears
+`check-citations.mjs` downloads the -00 tag and RFC 9421 and asserts each quoted requirement appears
 verbatim **and inside the section it cites**. Both halves are needed: a verbatim check catches a
 requirement that reads like the document and is not in it, and only the section check catches a real
 sentence cited under the wrong number, which a verbatim check passes happily.
@@ -124,6 +124,12 @@ is a **single-signature request**, so the chaining requirements in §5.2.2 and t
 rule in §5.4 are untouched, and COVERAGE says why for each.
 
 ## Status
+
+The document was adopted as a working group item on 2026-09-01 and its revision counter restarted
+under the new name, so `-00` here is NEWER than the `-02` this set was first written against, not
+older. The two revisions differ only in the document name, two links, and the capitalisation of
+section headings. No normative sentence changed and no section number moved, so every citation and
+every vector carries over untouched. `check-citations.mjs` now downloads the `-00` tag.
 
 Draft, for review. Each vector was constructed against a working verifier, which is not vendored
 here — `adapters/example.mjs` is a contract, not an implementation, so nothing in this repository

@@ -10,7 +10,7 @@
   },
   "enforcement": "discretionary",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "Appendix B.1",
     "requirement": "A verifier MUST reject a directory response signature whose created is in the future, as it would a certificate that is not yet valid.",
     "note": "The asymmetry is the point. The draft makes rejecting a future created a MUST for a DIRECTORY RESPONSE signature and says nothing about a REQUEST signature, where the same reasoning applies: a future-dated signature outlives every honest one. RFC 9421 Section 3.2.1 leaves the request side to the application (\"Enforcing a maximum signature age from the time of the created timestamp\"), so this vector is discretionary on the request path only because the draft has not carried its own rule across."

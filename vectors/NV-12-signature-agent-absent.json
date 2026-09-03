@@ -10,7 +10,7 @@
   },
   "enforcement": "discretionary",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.2.1",
     "requirement": "A signed request MUST carry the Signature-Agent header, as described in Section 5.2.5.",
     "requirementNote": "The kramdown source writes the cross-reference as a label, {{sending-request}}; it is expanded here to the number the published document prints, as every other citation in this set is.",

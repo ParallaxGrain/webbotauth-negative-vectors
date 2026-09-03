@@ -1,6 +1,6 @@
 {
   "schema": "web-bot-auth-negative-vectors-v1",
-  "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+  "document": "draft-ietf-webbotauth-httpsig-protocol-00",
   "issue": "https://github.com/thibmeu/http-message-signatures-directory/issues/11",
   "numberOfTests": 17,
   "key": {
@@ -78,7 +78,7 @@
     "signature-agent-absent": {
       "outcome": "unverified",
       "group": "signature-agent",
-      "fix": "No Signature-Agent header. -02 requires one on a signed request, and without it nothing says where your public key is published."
+      "fix": "No Signature-Agent header. -00 requires one on a signed request, and without it nothing says where your public key is published."
     },
     "signature-agent-ambiguous-member": {
       "outcome": "invalid",
@@ -132,7 +132,7 @@
           },
           "enforcement": "discretionary",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2",
             "requirement": "Agents MUST include at least one of the following components:",
             "requirementList": [
@@ -204,7 +204,7 @@
           },
           "enforcement": "discretionary",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2",
             "requirement": "Agents MUST include the following @signature-params as defined in Section 2.3 of HTTP-MESSAGE-SIGNATURES",
             "requirementList": [
@@ -340,7 +340,7 @@
           },
           "enforcement": "discretionary",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "Appendix B.1",
             "requirement": "A verifier MUST reject a directory response signature whose created is in the future, as it would a certificate that is not yet valid.",
             "note": "The asymmetry is the point. The draft makes rejecting a future created a MUST for a DIRECTORY RESPONSE signature and says nothing about a REQUEST signature, where the same reasoning applies: a future-dated signature outlives every honest one. RFC 9421 Section 3.2.1 leaves the request side to the application (\"Enforcing a maximum signature age from the time of the created timestamp\"), so this vector is discretionary on the request path only because the draft has not carried its own rule across."
@@ -405,7 +405,7 @@
           },
           "enforcement": "mechanical",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.4",
             "requirement": "Upon receiving an HTTP request, the origin has to verify the signature. The algorithm is provided in Section 3.2 of HTTP-MESSAGE-SIGNATURES."
           },
@@ -542,7 +542,7 @@
           },
           "enforcement": "discretionary",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2",
             "requirement": "No component covers the body. An Agent that needs one MUST send and cover Content-Digest.",
             "note": "The draft requires the signer to cover it and does not say the verifier must compare it against the body. A verifier that skips the comparison makes the coverage decorative, but stays within the text."
@@ -872,7 +872,7 @@
           },
           "enforcement": "discretionary",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2.1",
             "requirement": "A signed request MUST carry the Signature-Agent header, as described in Section 5.2.5.",
             "requirementNote": "The kramdown source writes the cross-reference as a label, {{sending-request}}; it is expanded here to the number the published document prints, as every other citation in this set is.",
@@ -928,7 +928,7 @@
           },
           "enforcement": "verifier-must",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2.2",
             "requirement": "Each signer MUST provide a Signature-Agent member for its label. A verifier MUST NOT attribute a signature to a member that signature does not cover.",
             "note": "The MUST NOT binds attribution, not the outcome: a verifier is forbidden from picking one of the two members, and the text does not say which failing outcome follows. Reported here as invalid because the signer broke a stated MUST that the operator can fix. A verifier reporting unverified on the same request is not obviously wrong, and the question is worth settling — see COVERAGE.md."
@@ -1055,7 +1055,7 @@
           },
           "enforcement": "discretionary",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2.1",
             "requirement": "Its member values MUST be String Items that contain a URI, whose scheme MUST be https.",
             "note": "A signer requirement. The adjacent sentence — \"If dictionary values are not valid URI-references, the entire header field MAY be ignored\" — does not apply: an http URL is a valid URI-reference."
@@ -1120,7 +1120,7 @@
           },
           "enforcement": "verifier-must",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.5",
             "requirement": "The member value MUST be the ASCII serialization of an origin as defined in Section 6.2 of ORIGIN, and a verifier MUST ignore a member carrying anything else (an empty path / MAY be accepted though).",
             "note": "Ignoring is not rejecting. With the only member ignored there is no discovery mechanism left, so the outcome is unverified — the same reading the draft applies to an unsupported type parameter."
@@ -1179,7 +1179,7 @@
           },
           "enforcement": "mechanical",
           "basis": {
-            "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+            "document": "draft-ietf-webbotauth-httpsig-protocol-00",
             "section": "5.2.1",
             "requirement": "Signature-Agent is a Dictionary Structured Header as defined in Section 3.2 of STRUCTURED-HEADERS."
           },

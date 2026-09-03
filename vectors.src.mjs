@@ -33,7 +33,7 @@ const params = (components, extra = {}) => {
 
 const AUTH = '"@authority"';
 const SA = (label) => `"signature-agent";key="${label}"`;
-const D = 'draft-meunier-webbotauth-httpsig-protocol-02';
+const D = 'draft-ietf-webbotauth-httpsig-protocol-00';
 const R = 'RFC 9421';
 
 const baseline = {

@@ -10,7 +10,7 @@
   },
   "enforcement": "verifier-must",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.5",
     "requirement": "The member value MUST be the ASCII serialization of an origin as defined in Section 6.2 of ORIGIN, and a verifier MUST ignore a member carrying anything else (an empty path / MAY be accepted though).",
     "note": "Ignoring is not rejecting. With the only member ignored there is no discovery mechanism left, so the outcome is unverified — the same reading the draft applies to an unsupported type parameter."

@@ -14,8 +14,9 @@
  *
  * Two `fix` texts are adapted for a standalone file. `canonicalization-mismatch` drops a clause
  * pointing at a narrower string the API returns beside the reason, which nothing here carries.
- * `signature-agent-absent` says "-02 requires one" where the API says "the current draft", because
- * this file is pinned to a revision and will outlive it. Every other text is the verifier's own,
+ * `signature-agent-absent` says "-00 requires one" where the API says "the current draft", because
+ * this file is pinned to a revision and will outlive it. It said "-02" until 2026-09-03, when the
+ * working group adopted the document and the revision counter restarted under the new name. Every other text is the verifier's own,
  * word for word.
  */
 export const NOTES = {
@@ -72,7 +73,7 @@ export const NOTES = {
   "signature-agent-absent": {
     "outcome": "unverified",
     "group": "signature-agent",
-    "fix": "No Signature-Agent header. -02 requires one on a signed request, and without it nothing says where your public key is published."
+    "fix": "No Signature-Agent header. -00 requires one on a signed request, and without it nothing says where your public key is published."
   },
   "signature-agent-ambiguous-member": {
     "outcome": "invalid",

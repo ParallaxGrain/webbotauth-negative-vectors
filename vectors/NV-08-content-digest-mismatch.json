@@ -10,7 +10,7 @@
   },
   "enforcement": "discretionary",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.2",
     "requirement": "No component covers the body. An Agent that needs one MUST send and cover Content-Digest.",
     "note": "The draft requires the signer to cover it and does not say the verifier must compare it against the body. A verifier that skips the comparison makes the coverage decorative, but stays within the text."

@@ -10,7 +10,7 @@
   },
   "enforcement": "discretionary",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.2",
     "requirement": "Agents MUST include the following @signature-params as defined in Section 2.3 of HTTP-MESSAGE-SIGNATURES",
     "requirementList": [

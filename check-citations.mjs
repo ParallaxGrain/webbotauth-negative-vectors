@@ -17,10 +17,10 @@ import { fileURLToPath } from 'node:url';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const suite = JSON.parse(readFileSync(join(HERE, 'web-bot-auth-negative-vectors.json'), 'utf8'));
 
-const DRAFT = 'draft-meunier-webbotauth-httpsig-protocol-02';
+const DRAFT = 'draft-ietf-webbotauth-httpsig-protocol-00';
 const RFC = 'RFC 9421';
 const SOURCES = {
-  [DRAFT]: 'https://raw.githubusercontent.com/thibmeu/http-message-signatures-directory/draft-meunier-webbotauth-httpsig-protocol-02/draft-meunier-webbotauth-httpsig-protocol.md',
+  [DRAFT]: 'https://raw.githubusercontent.com/thibmeu/http-message-signatures-directory/draft-ietf-webbotauth-httpsig-protocol-00/draft-ietf-webbotauth-httpsig-protocol.md',
   // ietf.org refuses this fetcher; rfc-editor.org serves the same text.
   [RFC]: 'https://www.rfc-editor.org/rfc/rfc9421.txt',
 };

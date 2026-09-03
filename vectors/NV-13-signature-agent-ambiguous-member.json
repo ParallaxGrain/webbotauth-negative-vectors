@@ -10,7 +10,7 @@
   },
   "enforcement": "verifier-must",
   "basis": {
-    "document": "draft-meunier-webbotauth-httpsig-protocol-02",
+    "document": "draft-ietf-webbotauth-httpsig-protocol-00",
     "section": "5.2.2",
     "requirement": "Each signer MUST provide a Signature-Agent member for its label. A verifier MUST NOT attribute a signature to a member that signature does not cover.",
     "note": "The MUST NOT binds attribution, not the outcome: a verifier is forbidden from picking one of the two members, and the text does not say which failing outcome follows. Reported here as invalid because the signer broke a stated MUST that the operator can fix. A verifier reporting unverified on the same request is not obviously wrong, and the question is worth settling — see COVERAGE.md."
