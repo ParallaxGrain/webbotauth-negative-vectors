@@ -41,6 +41,33 @@ NV-13 and NV-14 sit on [#128](https://github.com/thibmeu/http-message-signatures
 where the draft's E.2.1 vector keys its member `agent2` under signature label `sig2`. They make the
 two failure shapes explicit so a reported reason can be checked whichever way it resolves.
 
+NV-08 is the only vector that needs the request body, because the signature covers the header that
+declares the digest rather than the bytes themselves, so a verifier that does not read the body
+cannot reach this fault at all.
+
+## Where a base that cannot be built lands
+
+NV-09, NV-13, NV-14 and NV-18 all fail before any cryptography runs, because the signature base
+cannot be built. All four are `invalid` here, and that is the documents' answer rather than this
+set's choice.
+
+RFC 9421 §2.5 requires the error: "If covered components reference a component identifier that
+cannot be resolved to a component value in the message, the implementation MUST produce an error and
+not create a signature base."
+
+RFC 9421 §3.2 says what that error does to the verdict. Recreating the base is step 7 of its
+verification procedure, and the procedure closes with "If any of the above steps fail or produce an
+error, the signature validation fails."
+
+Appendix C.1 then places a failed validation. `invalid` is "the signature, covered components, key,
+or freshness checks fail", while `unverified` is for a verifier that "cannot obtain enough
+information to decide". §6.10 shows what that second one is for by working a single case, a
+directory that will not resolve, and adding that a failed fetch "says nothing about the signer".
+
+So a base that cannot be built is a failed check and not a missing one, which puts it under
+`invalid`. Written out here because two verifiers built independently reached opposite answers in
+this one cell, each of them from a reading rather than from a citation.
+
 ## Omitted: no outcome can be stated (2)
 
 **`bad-tag`** (id 02, unassigned). Three rules meet here and do not give one answer. Draft §5.2
