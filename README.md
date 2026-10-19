@@ -91,6 +91,7 @@ generate.mjs                         rebuild from the key         (--check for C
 verify.mjs                           self-check, and run the set through your verifier
 check-citations.mjs                  every quoted requirement, against the published source
 adapters/example.mjs                 the adapter contract
+adapters/axis-comments.mjs           a worked adapter: the axis-comments verifier (needs its own module)
 ```
 
 ```
